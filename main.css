@@ -13,18 +13,20 @@ svg {
 
 .histogram-area.histogram-r {
   fill: #f00;
+  opacity: 0.3;
 }
 
 .histogram-area.histogram-g {
   fill: #0f0;
+  opacity: 0.3;
 }
 
 .histogram-area.histogram-b {
   fill: #00f;
+  opacity: 0.3;
 }
 
 .histogram-line {
   fill: none;
-  stroke: #000;
   shape-rendering: crispEdges;
 }

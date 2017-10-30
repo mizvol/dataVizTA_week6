@@ -1,13 +1,37 @@
-var canvas = document.querySelector("canvas"),
-    context = canvas.getContext("2d"),
-    width = canvas.width,
-    height = canvas.height;
+const imageDiv = document.getElementById("image");
+// const histDiv = document.getElementById("hist");
 
-var histowidth = width,
-    histoheight = width / 2;
+const imageSize = {
+  width: 900,
+  height: 400
+}
 
-var x = d3.scaleLinear().domain([0, 256]).rangeRound([0, histowidth]),
-    y = d3.scaleLinear().rangeRound([0, histoheight]);
+const histSize = {
+  width: 900,
+  height: 200
+}
+
+// const histSVG = d3.select("#hist")
+//   .append("svg")
+//   .attr("width", histSize.width)
+//   .attr("height", histSize.height);
+
+const canvas = d3.select("#image")
+  .append("canvas")
+  .attr("width", imageSize.width)
+  .attr("height", imageSize.height);
+
+const imageSVG = d3.select("#image")
+  .append("svg")
+  .attr("width", imageSize.width)
+  .attr("height", imageSize.height);
+
+const context = canvas.node().getContext("2d");
+const width = canvas.width;
+const height = canvas.height;
+
+var x = d3.scaleLinear().domain([0, 256]).rangeRound([0, histSize.width]),
+    y = d3.scaleLinear().rangeRound([histSize.height * 2, 0]);
 
 var r = new Array(257),
     g = new Array(257),
@@ -28,20 +52,18 @@ var brush = d3.brush()
     .on("start brush", brushed)
     .on("end", brushended);
 
-var svg = d3.select("svg");
+var histogram = imageSVG.append("g")
+    .attr("class", "histogram");
 
-// var histogram = svg.append("g")
-//     .attr("class", "histogram");
+var histoarea = histogram.selectAll(".histogram-area")
+    .data([r, g, b])
+  .enter().append("path")
+    .attr("class", function(d, i) { return "histogram-area histogram-" + "rgb"[i]; });
 
-// var histoarea = histogram.selectAll(".histogram-area")
-//     .data([r, g, b])
-//   .enter().append("path")
-//     .attr("class", function(d, i) { return "histogram-area histogram-" + "rgb"[i]; });
-
-// var histoline = histogram.selectAll(".histogram-line")
-//     .data([r, g, b])
-//   .enter().append("path")
-//     .attr("class", function(d, i) { return "histogram-line histogram-" + "rgb"[i]; });
+var histoline = histogram.selectAll(".histogram-line")
+    .data([r, g, b])
+  .enter().append("path")
+    .attr("class", function(d, i) { return "histogram-line histogram-" + "rgb"[i]; });
 
 var image = new Image;
 image.src = "epfl-rolex.jpg";
@@ -50,7 +72,7 @@ image.onload = loaded;
 function loaded() {
   context.drawImage(this, 0, 0);
 
-  svg.append("g")
+  imageSVG.append("g")
       .attr("class", "brush")
       .call(brush)
       .call(brush.move, [[0, 0], [100, 100]]);
@@ -77,19 +99,19 @@ function brushed() {
       }
     }
     y.domain([0, max]);
-    // histoarea.attr("d", area);
-    // histoline.attr("d", line);
+    histoarea.attr("d", area);
+    histoline.attr("d", line);
   } else {
-    // histoarea.attr("d", null);
-    // histoline.attr("d", null);
+    histoarea.attr("d", null);
+    histoline.attr("d", null);
   }
 }
 
 function brushended() {
-  // if (!d3.event.selection) {
-  //   histoarea.attr("d", null);
-  //   histoline.attr("d", null);
-  // }
+  if (!d3.event.selection) {
+    histoarea.attr("d", null);
+    histoline.attr("d", null);
+  }
 }
 
 function curveStepBelow(context) {
